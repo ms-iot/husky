@@ -44,7 +44,10 @@
 *
 */
 
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
 #include <iostream>
 #include <string.h>
 #include "husky_base/horizon_legacy/crc.h"

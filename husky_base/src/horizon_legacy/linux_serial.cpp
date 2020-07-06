@@ -50,15 +50,22 @@
 #include "husky_base/horizon_legacy/serial.h"  /* Std. function protos */
 #include <stdio.h>   /* Standard input/output definitions */
 #include <string.h>  /* String function definitions */
-#include <unistd.h>  /* UNIX standard function definitions */
 #include <fcntl.h>   /* File control definitions */
 #include <errno.h>   /* Error number definitions */
-#include <termios.h> /* POSIX terminal control definitions */
 #include <stdlib.h>  /* Malloc */
 #include <assert.h>
 
+#ifdef _WIN32
+#include <windows.h>
+
+#else
+#include <termios.h> /* POSIX terminal control definitions */
+#include <unistd.h>  /* UNIX standard function definitions */
+#endif
+
 int OpenSerial(void **handle, const char *port_name)
 {
+#ifndef _WIN32
 
   int fd; /* File descriptor for the port */
 
@@ -80,10 +87,14 @@ int OpenSerial(void **handle, const char *port_name)
   *handle = (int *) malloc(sizeof(int));
   **(int **) handle = fd;
   return fd;
+  #else
+  return 0;
+  #endif
 }
 
 int SetupSerial(void *handle)
 {
+#ifndef _WIN32
   struct termios options;
 
   // Get the current options for the port...
@@ -115,12 +126,13 @@ int SetupSerial(void *handle)
 
   // Set the new options for the port...
   tcsetattr(*(int *) handle, TCSAFLUSH, &options);
-
+#endif
   return 0;
 }
 
 int WriteData(void *handle, const char *buffer, int length)
 {
+#ifndef _WIN32
   int n = write(*(int *) handle, buffer, length);
   if (n < 0)
   {
@@ -138,10 +150,14 @@ int WriteData(void *handle, const char *buffer, int length)
 #endif
 
   return n;
+#else
+return 0;
+#endif
 }
 
 int ReadData(void *handle, char *buffer, int length)
 {
+#ifndef _WIN32
   int bytesRead = read(*(int *) handle, buffer, length);
   if (bytesRead <= 0)
   {
@@ -158,10 +174,14 @@ int ReadData(void *handle, char *buffer, int length)
 #endif
 
   return bytesRead;
+#else
+return 0;
+#endif
 }
 
 int CloseSerial(void *handle)
 {
+#ifndef _WIN32
   if (NULL == handle)
   {
     return 0;
@@ -169,6 +189,9 @@ int CloseSerial(void *handle)
   close(*(int *) handle);
   free(handle);
   return 0;
+#else
+return 0;
+#endif
 }
 
 #endif // LINUX_SERIAL
