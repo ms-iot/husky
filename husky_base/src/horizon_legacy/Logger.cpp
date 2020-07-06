@@ -47,7 +47,14 @@
 #include <iostream>
 #include <fstream>
 #include <signal.h>
-#include <unistd.h>
+
+#if !defined(_WIN32)
+#  include <unistd.h>
+#else
+#  include <windows.h>
+#endif
+
+
 
 using namespace std;
 
@@ -69,7 +76,11 @@ namespace clearpath
        * is re-raise the signal.  (We certainly don't want to just
        * ignore these) */
       signal(signum, SIG_DFL);
-      kill(getpid(), signum);
+#if defined(_WIN32)
+        TerminateProcess(GetCurrentProcess(), 0);
+#else
+        kill(getpid(), signum);
+#endif
     }
   }
 

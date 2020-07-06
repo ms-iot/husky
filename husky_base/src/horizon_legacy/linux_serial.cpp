@@ -44,7 +44,7 @@
 *
 */
 
-#if !defined(LINUX_SERIAL_H) && !defined(win_x86)
+#if !defined(LINUX_SERIAL_H) && !defined(_WIN32)
 #define LINUX_SERIAL_H
 
 #include "husky_base/horizon_legacy/serial.h"  /* Std. function protos */

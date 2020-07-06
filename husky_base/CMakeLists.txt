@@ -26,6 +26,7 @@ add_library(horizon_legacy
   src/horizon_legacy/Transport.cpp
   src/horizon_legacy/Number.cpp
   src/horizon_legacy/linux_serial.cpp
+  src/horizon_legacy/windows_serial.cpp
 )
 
 add_executable(husky_node
@@ -55,3 +56,5 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 install(DIRECTORY launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+add_definitions("/D_CRT_SECURE_NO_WARNINGS")

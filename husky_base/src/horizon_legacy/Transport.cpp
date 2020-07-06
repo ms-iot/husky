@@ -45,13 +45,17 @@
 */
 
 #include <string.h>
-#include <unistd.h>
+#if !defined(_WIN32)
+#  include <unistd.h>
+#endif
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <chrono>
+#include <thread>
 
 #include "husky_base/horizon_legacy/Transport.h"
 #include "husky_base/horizon_legacy/Number.h"
@@ -427,7 +431,7 @@ namespace clearpath
       // Wait up to 100 ms for ack
       for (int i = 0; i < RETRY_DELAY_MS; ++i)
       {
-        usleep(1000);
+        std::this_thread::sleep_for(1s);
         if ((ack = getAck())) { break; }
       }
 
@@ -541,7 +545,7 @@ namespace clearpath
       }
 
       // Wait a ms before retry
-      usleep(1000);
+      std::this_thread::sleep_for(1s);
       elapsed += 0.001;
     }
   }
@@ -578,7 +582,7 @@ namespace clearpath
       }
 
       // Wait a ms  before retry
-      usleep(1000);
+      std::this_thread::sleep_for(1s);
       elapsed += 0.001;
     }
   }

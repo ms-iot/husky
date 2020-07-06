@@ -44,7 +44,9 @@
 *
 */
 
-#include <unistd.h>
+#if !defined(_WIN32)
+#  include <unistd.h>
+#endif
 #include <iostream>
 #include <string.h>
 #include "husky_base/horizon_legacy/crc.h"
@@ -112,7 +114,7 @@ namespace clearpath
 
     /* Fill header */
     data[SOH_OFST] = SOH;
-    setLength(total_len - 3);
+    setLength((uint8_t)total_len - 3);
     setType(type);
     setTimestamp(timestamp);
     setFlags(flags);
@@ -304,31 +306,31 @@ namespace clearpath
     // Check SOH 
     if (data[SOH_OFST] != SOH)
     {
-      if (whyNot) { strncpy(whyNot, "SOH is not present.", strLen); }
+      if (whyNot) { std::strncpy(whyNot, "SOH is not present.", strLen); }
       return false;
     }
     // Check STX
     if (data[STX_OFST] != STX)
     {
-      if (whyNot) { strncpy(whyNot, "STX is not present.", strLen); }
+      if (whyNot) { std::strncpy(whyNot, "STX is not present.", strLen); }
       return false;
     }
     // Check length matches complement
     if (getLength() != ((~getLengthComp()) & 0xff))
     {
-      if (whyNot) { strncpy(whyNot, "Length does not match complement.", strLen); }
+      if (whyNot) { std::strncpy(whyNot, "Length does not match complement.", strLen); }
       return false;
     }
     // Check length is correct
     if (getLength() != (total_len - 3))
     {
-      if (whyNot) { strncpy(whyNot, "Length is wrong.", strLen); }
+      if (whyNot) { std::strncpy(whyNot, "Length is wrong.", strLen); }
       return false;
     }
     // Check the CRC
     if (crc16(crcOffset(), CRC_INIT_VAL, this->data) != getChecksum())
     {
-      if (whyNot) { strncpy(whyNot, "CRC is wrong.", strLen); }
+      if (whyNot) { std::strncpy(whyNot, "CRC is wrong.", strLen); }
       return false;
     }
     return true;
