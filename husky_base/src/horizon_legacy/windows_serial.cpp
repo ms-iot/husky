@@ -44,8 +44,9 @@
 *
 */
 
-#if !defined(WINDOWS_SERIAL_H) && defined(_WIN32)
-#define WINDOWS_SERIAL_H
+#if defined(_WIN32)
+
+#include <ros/ros.h>
 
 #include "husky_base/horizon_legacy/serial.h"  /* Std. function protos */
 #include <stdio.h>   /* Standard input/output definitions */
@@ -55,6 +56,9 @@
 #include <stdlib.h>  /* Malloc */
 #include <assert.h>
 #include <windows.h>
+
+#define TX_DEBUG 1
+#define RX_DEBUG 1
 
 int OpenSerial(void **handle, const char *port_name)
 {
@@ -79,7 +83,7 @@ int OpenSerial(void **handle, const char *port_name)
 
   *handle = (HANDLE*) malloc(sizeof(HANDLE));
   **(HANDLE**) handle = fd;
-  return 0; // TODO: return the equivalent of the linux file descriptor?
+  return 1; // return something positive so that checks on the return value succeed
 }
 
 int SetupSerial(void *handleptr)
@@ -87,22 +91,38 @@ int SetupSerial(void *handleptr)
   HANDLE *handle = (HANDLE*)handleptr;
   DCB serialParams = {0};
   serialParams.DCBlength = sizeof(serialParams);
+  serialParams.fBinary = TRUE;
 
   // configure for 115200 baud 8n1
-  GetCommState(*handle, &serialParams);
-  serialParams.BaudRate = 115200;
-  serialParams.ByteSize = 8;
-  serialParams.StopBits = 1;
-  serialParams.Parity = 0;
-  SetCommState(*handle, &serialParams);
+  if(GetCommState(*handle, &serialParams))
+  {
+    COMMPROP cm;
+    GetCommProperties(*handle, &cm); 
+
+    serialParams.BaudRate = CBR_115200;
+    serialParams.ByteSize = 8;
+    serialParams.StopBits = ONESTOPBIT;
+    serialParams.Parity = 0;
+    if(!SetCommState(*handle, &serialParams))
+    {
+      //ROS_ERROR("Failed to set serial port configuration");
+      return -1;
+    }
+  }
+  else
+  {
+    //ROS_ERROR("Failed to read serial port configuration");
+    return -1;
+  }
+  
 
   // TODO: necessary? correct? ????
   COMMTIMEOUTS timeout = {0};
-  timeout.ReadIntervalTimeout = 50;
-  timeout.ReadTotalTimeoutConstant = 50;
-  timeout.ReadTotalTimeoutMultiplier = 50;
-  timeout.WriteTotalTimeoutConstant = 50;
-  timeout.WriteTotalTimeoutMultiplier = 50;
+  timeout.ReadIntervalTimeout = 0;
+  timeout.ReadTotalTimeoutConstant = 0;
+  timeout.ReadTotalTimeoutMultiplier = 0;
+  timeout.WriteTotalTimeoutConstant = 0;
+  timeout.WriteTotalTimeoutMultiplier = 0;
   SetCommTimeouts(*handle, &timeout);
 
   return 0;
@@ -138,7 +158,8 @@ int ReadData(void *handleptr, char *buffer, int length)
   HANDLE *handle = (HANDLE*)handleptr;
 
   DWORD nBytesRead = 0;
-  ReadFile(*handle, buffer, length, &nBytesRead, NULL);
+
+  BOOL ok = ReadFile(*handle, buffer, length, &nBytesRead, NULL);
 
   if (nBytesRead <= 0)
   {
@@ -149,7 +170,7 @@ int ReadData(void *handleptr, char *buffer, int length)
 //#define RX_DEBUG
 #ifdef RX_DEBUG
 	printf("RX:");
-	int i;
+	DWORD i;
 	for (i=0; i<nBytesRead; ++i) printf(" %x", (unsigned char)buffer[i]);
 	printf("\r\n");
 #endif
@@ -175,4 +196,4 @@ int CloseSerial(void *handle)
   return 0;
 }
 
-#endif // WINDOWS_SERIAL
+#endif // _WIN32
