@@ -46,8 +46,8 @@
 
 #include <string.h>
 
-#ifndef _WIN32
-#include <unistd.h>
+#if !defined(_WIN32)
+#  include <unistd.h>
 #endif
 
 #include <cstdlib>
@@ -269,7 +269,10 @@ namespace clearpath
           {
             rx_inx++;
           }
-          else { counters[GARBLE_BYTES]++; }
+          else 
+          { 
+            counters[GARBLE_BYTES]++; 
+          }
           break;
 
           /* Waiting for length */
@@ -433,7 +436,7 @@ namespace clearpath
       // Wait up to 100 ms for ack
       for (int i = 0; i < RETRY_DELAY_MS; ++i)
       {
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+        std::this_thread::sleep_for(1000us);
         if ((ack = getAck())) { break; }
       }
 
@@ -547,7 +550,7 @@ namespace clearpath
       }
 
       // Wait a ms before retry
-      std::this_thread::sleep_for(std::chrono::microseconds(1000));
+      std::this_thread::sleep_for(1000us);
       elapsed += 0.001;
     }
   }
@@ -584,7 +587,7 @@ namespace clearpath
       }
 
       // Wait a ms  before retry
-      std::this_thread::sleep_for(std::chrono::microseconds(1000));
+      std::this_thread::sleep_for(1000us);
       elapsed += 0.001;
     }
   }
@@ -679,12 +682,12 @@ namespace clearpath
 
     for (int i = 0; i < NUM_COUNTERS; ++i)
     {
-      cout.width(longest_name);
-      cout << left << counter_names[i] << ": " << counters[i] << endl;
+      stream.width(longest_name);
+      stream << left << counter_names[i] << ": " << counters[i] << endl;
     }
 
-    cout.width(longest_name);
-    cout << left << "Queue length" << ": " << rx_queue.size() << endl;
+    stream.width(longest_name);
+    stream << left << "Queue length" << ": " << rx_queue.size() << endl;
   }
 
 /**

@@ -47,11 +47,11 @@
 #include <iostream>
 #include <fstream>
 #include <signal.h>
-#if defined(_WIN32)
-#include <windows.h>
+
+#if !defined(_WIN32)
+#  include <unistd.h>
 #else
-#include <unistd.h>
-#endif
+#  include <windows.h>
 
 using namespace std;
 

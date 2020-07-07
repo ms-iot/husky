@@ -7,9 +7,9 @@
 #include <string.h>
 #include <sstream>
 
-#ifndef ssize_t
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
+#if defined(_WIN32) && !defined(ssize_t)
+#  include <BaseTsd.h>
+   typedef SSIZE_T ssize_t;
 #endif
 
 using namespace std;
