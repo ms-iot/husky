@@ -45,9 +45,11 @@
 */
 
 #include <string.h>
+
 #if !defined(_WIN32)
 #  include <unistd.h>
 #endif
+
 #include <cstdlib>
 #include <iostream>
 #include <vector>

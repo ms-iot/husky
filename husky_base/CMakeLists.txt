@@ -17,6 +17,8 @@ include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 set_directory_properties(PROPERTIES COMPILE_OPTIONS "-std=c++11;")
 add_compile_options(/Od)
 
+add_definitions("/D_CRT_SECURE_NO_WARNINGS")
+
 add_library(horizon_legacy
   src/horizon_legacy/crc.cpp
   src/horizon_legacy/Logger.cpp
