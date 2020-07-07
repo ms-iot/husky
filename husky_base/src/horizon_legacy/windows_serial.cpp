@@ -57,8 +57,8 @@
 #include <assert.h>
 #include <windows.h>
 
-#define TX_DEBUG 1
-#define RX_DEBUG 1
+//#define TX_DEBUG 1
+//#define RX_DEBUG 1
 
 int OpenSerial(void **handle, const char *port_name)
 {
@@ -118,7 +118,7 @@ int SetupSerial(void *handleptr)
 
   // TODO: necessary? correct? ????
   COMMTIMEOUTS timeout = {0};
-  timeout.ReadIntervalTimeout = 0;
+  timeout.ReadIntervalTimeout = MAXDWORD;
   timeout.ReadTotalTimeoutConstant = 0;
   timeout.ReadTotalTimeoutMultiplier = 0;
   timeout.WriteTotalTimeoutConstant = 0;
@@ -142,7 +142,6 @@ int WriteData(void *handleptr, const char *buffer, int length)
   }
 
   // serial port output monitor
-//#define TX_DEBUG
 #ifdef TX_DEBUG
 	printf("TX:");
 	int i;
@@ -163,11 +162,14 @@ int ReadData(void *handleptr, char *buffer, int length)
 
   if (nBytesRead <= 0)
   {
+#ifdef RX_DEBUG
+    printf("RX: nil");
+    printf("\r\n");
+#endif
     return 0;
   }
 
   // serial port input monitor
-//#define RX_DEBUG
 #ifdef RX_DEBUG
 	printf("RX:");
 	DWORD i;
